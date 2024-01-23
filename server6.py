@@ -92,7 +92,23 @@ async def dohvati_ulogu(u_id: int, db: Session = Depends(get_db)):
     uloga= db.query(Uloga).filter(Uloga.u_id == u_id).first()
     if uloga is None:
         raise HTTPException(status_code=404, detail="Pripadajuca uloga glumcu nije pronadjena")
-    return uloga  
+    return uloga    
+
+#HTTP PUT izmjena tipa uloge za glumca   
+
+@app.put("/izmjena-tipa-uloge/{u_id}", status_code=status.HTTP_200_OK)
+async def izmjena_tipa_uloge(u_id: int, novi_tip_uloge: str, db: Session = Depends(get_db)):
+    db_uloga = db.query(Uloga).filter(Uloga.u_id == u_id).first()
+
+    if db_uloga is None:
+        raise HTTPException(status_code=404, detail="Uloga nije pronađena!")
+
+    # Ažuriranje podataka uloge
+    db_uloga.tip_uloge = novi_tip_uloge
+    db.commit()
+
+    return {"message": "Izmjena tipa uloge je uspjela!"} 
+
 
 
 #HTTP GET dohvat filma sa sa petog servera  

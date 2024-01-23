@@ -88,7 +88,7 @@ async def dohvati_glumca(g_id: str, db: Session = db_dependency):
 
 #HTTP PUT Izmjena osvojene nagrade za trecu glumicu   
 
-@app.put("/glumci/{g_id}", status_code=status.HTTP_200_OK)
+@app.put("/glumac/{g_id}", status_code=status.HTTP_200_OK)
 async def izmjena_nagrede_glumcu(g_id: str,nova_nagrada: str,db: Session = db_dependency):
     db_glumac = db.query(models.Glumac).filter(models.Glumac.g_id == g_id).first()
 
@@ -99,7 +99,23 @@ async def izmjena_nagrede_glumcu(g_id: str,nova_nagrada: str,db: Session = db_de
     db_glumac.g_nagrade = nova_nagrada
     db.commit()
 
-    return {"message": "Izmjena nagrade glumcu je uspjela!"}   
+    return {"message": "Izmjena nagrade glumcu je uspjela!"}    
+
+
+#HTTP DELETE metoda brisanja glumca kojem nije dodijeljena niti jedna uloga 
+
+@app.delete("/glumac/{g_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def obrisi_glumca(g_id: str, db: Session = db_dependency):
+    db_glumac = db.query(models.Glumac).filter(models.Glumac.g_id == g_id).first()
+
+    if db_glumac is None:
+        raise HTTPException(status_code=404, detail="Glumac nije pronadjen!")
+
+    # Brisanje glumca sa tablice glumaca 
+    db.delete(db_glumac)
+    db.commit()
+
+    return {"message": "Brisanje glumca je uspješno!"} 
 
  
 
