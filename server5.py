@@ -85,9 +85,12 @@ class UlogaPydantic(BaseModel):
     f_id: int  
     g_id: str 
     uloga: str 
-    tip_uloge:str    
+    tip_uloge:str   
 
-
+#Pydantic model za izmjenu minute filma 
+ 
+class FilmUpdate(BaseModel):
+    f_trajanje_u_minutama: int
 
 #Funkcije uvoza Pydantic modela različitih servera koje spriječavaju kružni uvoz
 
@@ -108,6 +111,10 @@ def import_UlogaPydantic():
     return UlogaPydantic
 
 
+#Funkcije dohvata filma po ID-u
+
+def get_film_by_id(db: Session, film_id: int):
+    return db.query(Film).filter(Film.f_id == film_id).first()
 
 # HTTP POST Evidencija novog filma 
 @app.post("/film/", status_code=status.HTTP_201_CREATED)
@@ -132,7 +139,22 @@ async def dohvati_film(f_id: int, db: Session = Depends(get_db)):
     film = db.query(Film).filter(Film.f_id == f_id).first()
     if film is None:
         raise HTTPException(status_code=404, detail="Trazeni film nije pronađen")
-    return film  
+    return film    
+
+# HTTP PUT Izmjena minute trajanja filma
+
+@app.put("/film/{f_id}", response_model=FilmPydantic)
+async def izmijeni_trajanje_filma(f_id: int, update_data: FilmUpdate, db: Session = Depends(get_db)):
+    # Check if the film with the given ID exists
+    film = get_film_by_id(db, f_id)
+    if film is None:
+        raise HTTPException(status_code=404, detail="Traženi film nije pronađen")
+
+    # Update only the duration field
+    film.f_trajanje_u_minutama = update_data.f_trajanje_u_minutama
+    db.commit()
+
+    return film
 
 #HTTP POST evidencija novog filma te slanje rješenja prvom serveru 
 
