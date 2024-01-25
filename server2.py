@@ -94,7 +94,7 @@ async def dohvati_redatelja(r_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Redatelj nije pronađen")
     return redatelj   
 
-#HTTP PUT izmjena email kontakta za trećeg redatelja  
+#HTTP PUT izmjena email i telefon kontakta za trećeg redatelja  
 
 @app.put("/novi-redatelj/{r_id}", status_code=status.HTTP_200_OK)
 async def izmijeni_email_telefon_redatelja(r_id: str, novi_podaci: RedateljCreate, db: Session = Depends(get_db)):

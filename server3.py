@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Depends, status
 from sqlalchemy.orm import Session
 from database import SessionLocal
-from models import Scenarist  
+from models import Scenarist   
 from pydantic import BaseModel
 from typing import List
 from datetime import date 
@@ -95,7 +95,26 @@ async def stvori_scenarista(scenarist: ScenaristCreate, db: Session = Depends(ge
     db.flush()  
     db.commit()
     db.refresh(db_scenarist)
-    return {"msg": "Scenarist je evidentiran!"}
+    return {"msg": "Scenarist je evidentiran!"}  
+
+
+#HTTP PUT izmjena email-a i telefonskog kontakta za scenarista 
+
+@app.put("/novi-scenarist/{s_id}", status_code=status.HTTP_200_OK)
+async def izmijeni_email_telefon_redatelja(s_id: str, novi_podaci: ScenaristCreate, db: Session = Depends(get_db)):
+    db_scenarist = db.query(Scenarist).filter(Scenarist.s_id == s_id).first()
+
+    if db_scenarist is None:
+        raise HTTPException(status_code=404, detail="Scenarist nije pronađen")
+
+    # Ažuriranje emaila i telefona
+    db_scenarist.s_email = novi_podaci.s_email
+    db_scenarist.s_telefon = novi_podaci.s_telefon
+
+    db.commit()
+    db.refresh(db_scenarist)
+
+    return {"msg": "Scenarist je ažuriran"} 
 
 # HTTP GET Dohvaćanje svih scenarista
 @app.get("/scenaristi/", response_model=List[ScenaristPydantic], status_code=status.HTTP_200_OK)
