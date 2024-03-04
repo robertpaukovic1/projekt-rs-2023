@@ -13,7 +13,8 @@ def funckcija_server1():
 def funkcija_server2():
     from server2 import RedateljPydantic    
 
-from server5 import FilmPydantic 
+def funkcija_server5():
+    from server5 import FilmPydantic 
 
 app = FastAPI()
 
@@ -50,7 +51,18 @@ class RedateljPydantic(BaseModel):
     r_telefon: int
     r_karijera_pocetak: date
     r_karijera_kraj: date
-    r_nagrade: str 
+    r_nagrade: str   
+
+# Pydantic model za filmove
+class FilmPydantic(BaseModel): 
+    f_id:int
+    f_naslov:str
+    f_godina:int 
+    f_zanr: str  
+    f_trajanje_u_minutama: int
+    r_id: str
+    s_id : str   
+    st_id: int
 
 
 #Funkcije uvoza Pydantic modela različitih servera koje spriječavaju kružni uvoz

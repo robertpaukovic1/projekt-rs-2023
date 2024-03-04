@@ -8,7 +8,8 @@ from datetime import date
 import httpx  
    
 from server6 import UlogaPydantic    
-from server7 import OcjenaPydantic
+from server7 import OcjenaPydantic  
+from server3 import ScenaristPydantic
 
 app = FastAPI()
 
