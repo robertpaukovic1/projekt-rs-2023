@@ -118,7 +118,7 @@ def get_film_by_id(db: Session, film_id: int):
     return db.query(Film).filter(Film.f_id == film_id).first()
 
 # HTTP POST Evidencija novog filma 
-@app.post("/film/", status_code=status.HTTP_201_CREATED)
+@app.post("/filmovi/", status_code=status.HTTP_201_CREATED)
 async def stvori_film(film: FilmCreate, db: Session = Depends(get_db)):
     print(film.dict())
     db_film = Film(**film.dict())
