@@ -69,7 +69,7 @@ async def upis_ocjene(ocjena: OcjenaCreate, db: Session = Depends(get_db)):
     db.flush()  
     db.commit()
     db.refresh(db_ocjena)
-    return {"msg": "Ocjena filmu je dodijeljena"}
+    return {"msg": "Ocjena filmu je evidentirana!"}
 
 # HTTP GET Dohvaćanje svih ocjenjenih filmova
 @app.get("/ocjene/", response_model=List[OcjenaPydantic], status_code=status.HTTP_200_OK)
