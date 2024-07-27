@@ -114,35 +114,17 @@ async def izmijeni_email_telefon_redatelja(r_id: str, novi_podaci: RedateljCreat
 
 #HTTP GET Dohvat glumaca sa prvog servera   
 
-@app.get("/dohvat-glumaca-sa-servera-glumci/", response_model=List[GlumacPydantic], status_code=status.HTTP_200_OK)
-async def dohvati_glumce_sa_prvog_servera():
-    SERVER1_BASE_URL = "http://127.0.0.1:8000"  
-    glumci_url = f"{SERVER1_BASE_URL}/glumci/"
-    
+@app.get("/redatelji_ka_glumcima/", response_model=List[GlumacPydantic], status_code=status.HTTP_200_OK)
+async def dohvati_glumaca():
+    glumci_url = "http://127.0.0.1:8000/glumci/"  
     try:
-        # Izvršavanje HTTP GET zahtjeva prema prvom serveru
         with httpx.Client() as client:
             response = client.get(glumci_url)
-            response.raise_for_status()  # Podiže iznimku ako je status kod odgovora neuspješan
-
-        # Pretvorba odgovora u listu glumaca
+            response.raise_for_status()  
         glumci = response.json()
         return glumci
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Greška pri dohvaćanju glumca sa prvog servera: {e}")
-
-# HTTP POST Evidencija novog redatelja te slanje rješenja prvom serveru
-@app.post("/redatelj-k-prvom/", status_code=status.HTTP_201_CREATED)
-async def stvori_redatelja(redatelj: RedateljCreate):
-    prvi_server_url = "http://localhost:8000/primi-rjesenje-iz-drugog-servera/"
-    try:
-        with httpx.AsyncClient() as client:
-            response = await client.post(prvi_server_url, json=redatelj.dict())
-            response.raise_for_status()
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Greška pri slanju rješenja prvom serveru: {e}")
-
-    return {"msg": "Redatelj je evidentiran i rješenje poslano prvom serveru!"}  
 
 # HTTP GET Dohvat scenarista sa trećeg servera 
 

@@ -110,8 +110,6 @@ async def obrisi_glumca(g_id: str, db: Session = db_dependency):
 
     if db_glumac is None:
         raise HTTPException(status_code=404, detail="Glumac nije pronadjen!")
-
-    # Brisanje glumca sa tablice glumaca 
     db.delete(db_glumac)
     db.commit()
 
@@ -121,18 +119,13 @@ async def obrisi_glumca(g_id: str, db: Session = db_dependency):
 
 #  HTTP dohvat redatelja sa drugog servera  
 
-@app.get("/dohvat-redatelja-sa-servera-redatelji/", response_model=List[RedateljPydantic], status_code=status.HTTP_200_OK)
-async def dohvati_redatelje_sa_drugog_servera():
-    SERVER2_BASE_URL = "http://127.0.0.1:8001"  
-    redatelji_url = f"{SERVER2_BASE_URL}/redatelji/"
-    
+@app.get("/glumci_ka_redateljima/", response_model=List[RedateljPydantic], status_code=status.HTTP_200_OK)
+async def dohvat_redatelja():
+    redatelji_url = "http://127.0.0.1:8001/redatelji/"   
     try:
-        # Izvršavanje HTTP GET zahtjeva prema drugom serveru
         with httpx.Client() as client:
             response = client.get(redatelji_url)
-            response.raise_for_status()  # Podiže iznimku ako je status kod odgovora neuspješan
-
-        # Pretvorba odgovora u listu redatelja
+            response.raise_for_status() 
         redatelji = response.json()
         return redatelji
     except Exception as e:
