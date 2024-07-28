@@ -62,11 +62,15 @@ class GlumacPydantic(BaseModel):
    g_nagrade:str  
 
 
+
+
 #Funkcije uvoza Pydantic modela različitih servera koje spriječavaju kružni uvoz
 
 def import_GlumacPydantic():
     from glumci import GlumacPydantic
     return GlumacPydantic  
+
+
 
 
 # HTTP POST Evidencija novih filmskih redatelja
@@ -80,11 +84,14 @@ async def stvori_redatelja(redatelj: RedateljCreate, db: Session = Depends(get_d
     db.refresh(db_redatelj)
     return {"msg": "Redatelj je evidentiran!"}
 
+
+
 # HTTP GET Dohvaćanje svih redatelja
 @app.get("/redatelji/", response_model=List[RedateljPydantic], status_code=status.HTTP_200_OK)
 async def dohvati_sve_redatelje(db: Session = Depends(get_db)):
     redatelji = db.query(Redatelj).all()
     return redatelji
+
 
 # HTTP GET Dohvaćanje jednog redatelja
 @app.get("/redatelj/{r_id}", response_model=RedateljPydantic)
@@ -92,7 +99,9 @@ async def dohvati_redatelja(r_id: str, db: Session = Depends(get_db)):
     redatelj = db.query(Redatelj).filter(Redatelj.r_id == r_id).first()
     if redatelj is None:
         raise HTTPException(status_code=404, detail="Redatelj nije pronađen")
-    return redatelj   
+    return redatelj  
+
+
 
 #HTTP PUT izmjena email i telefon kontakta za trećeg redatelja  
 
@@ -112,6 +121,8 @@ async def izmijeni_email_telefon_redatelja(r_id: str, novi_podaci: RedateljCreat
 
     return {"msg": "Email i telefon redatelja su ažurirani"}    
 
+
+
 #HTTP GET Dohvat glumaca sa prvog servera   
 
 @app.get("/redatelji_ka_glumcima/", response_model=List[GlumacPydantic], status_code=status.HTTP_200_OK)
@@ -126,20 +137,17 @@ async def dohvati_glumaca():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Greška pri dohvaćanju glumca sa prvog servera: {e}")
 
+
+
 # HTTP GET Dohvat scenarista sa trećeg servera 
 
-@app.get("/dohvat-scenarista-sa-servera-scenaristi/", response_model=List[ScenaristPydantic], status_code=status.HTTP_200_OK)
-async def dohvati_scenarista_sa_treceg_servera():
-    SERVER3_BASE_URL = "http://127.0.0.1:8002"  
-    scenaristi_url = f"{SERVER3_BASE_URL}/scenaristi/"
-    
+@app.get("/redatelji_ka_scenaristima/", response_model=List[ScenaristPydantic], status_code=status.HTTP_200_OK)
+async def dohvat_scenarista():
+    scenaristi_url = "http://127.0.0.1:8002/scenaristi/"  
     try:
-        # Izvršavanje HTTP GET zahtjeva prema trecem serveru
         with httpx.Client() as client:
             response = client.get(scenaristi_url)
-            response.raise_for_status()  # Podiže iznimku ako je status kod odgovora neuspješan
-
-        # Pretvorba odgovora u listu scenarista
+            response.raise_for_status()  
         scenaristi = response.json()
         return scenaristi
     except Exception as e:
@@ -148,18 +156,13 @@ async def dohvati_scenarista_sa_treceg_servera():
 
 # HTTP GET Dohvat filmova sa petog servera 
 
-@app.get("/dohvat-filmova-sa-servera-filmovi/", response_model=List[FilmPydantic], status_code=status.HTTP_200_OK)
-async def dohvati_filmove_sa_petog_servera():
-    SERVER5_BASE_URL = "http://127.0.0.1:8003"  
-    filmovi_url = f"{SERVER5_BASE_URL}/filmovi/"
-    
+@app.get("/pripadajuci_filmovi/", response_model=List[FilmPydantic], status_code=status.HTTP_200_OK)
+async def dohvat_filmova():
+    filmovi_url = "http://127.0.0.1:8003/filmovi/"  
     try:
-        # Izvršavanje HTTP GET zahtjeva prema trecem serveru
         with httpx.Client() as client:
             response = client.get(filmovi_url)
-            response.raise_for_status()  # Podiže iznimku ako je status kod odgovora neuspješan
-
-        # Pretvorba odgovora u listu scenarista
+            response.raise_for_status()  
         filmovi = response.json()
         return filmovi
     except Exception as e:

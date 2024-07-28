@@ -45,6 +45,7 @@ class StudioBase(BaseModel):
 class StudioCreate(StudioBase):
     pass
 
+
 # HTTP POST Evidencija novih filmskih studio-a
 @app.post("/novi-studio/", status_code=status.HTTP_201_CREATED)
 async def stvori_studio(studio: StudioCreate, db: Session = Depends(get_db)):
@@ -56,11 +57,15 @@ async def stvori_studio(studio: StudioCreate, db: Session = Depends(get_db)):
     db.refresh(db_studio)
     return {"msg": "Filmski studio je dodan!"}
 
+
+
 # HTTP GET Dohvaćanje svih filsmkih studia
 @app.get("/studio-s/", response_model=List[StudioPydantic], status_code=status.HTTP_200_OK)
 async def dohvati_sva_studio_a(db: Session = Depends(get_db)):
     studios = db.query(Studio).all()
     return studios
+
+
 
 # HTTP GET Dohvaćanje jednog filmskog studia
 @app.get("/studio/{st_id}", response_model=StudioPydantic)
@@ -71,24 +76,23 @@ async def dohvati_studio(st_id: int, db: Session = Depends(get_db)):
     return studio  
 
 
+
+
 #HTTP GET dohvat filma sa sa petog servera  
 
-@app.get("/dohvat-filmova-sa-servera-filmovi/", response_model=List[FilmPydantic], status_code=status.HTTP_200_OK)
-async def dohvati_filmove_sa_petog_servera():
-    SERVER5_BASE_URL = "http://127.0.0.1:8003"  
-    filmovi_url = f"{SERVER5_BASE_URL}/filmovi/"
-    
+@app.get("/studio_za_film/", response_model=List[FilmPydantic], status_code=status.HTTP_200_OK)
+async def dohvat_filmova():
+    filmovi_url = "http://127.0.0.1:8003/filmovi/"  
     try:
-        # Izvršavanje HTTP GET zahtjeva prema trecem serveru
         with httpx.Client() as client:
             response = client.get(filmovi_url)
-            response.raise_for_status()  # Podiže iznimku ako je status kod odgovora neuspješan
-
-        # Pretvorba odgovora u listu scenarista
+            response.raise_for_status()  
         filmovi = response.json()
         return filmovi
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Greška pri dohvaćanju filma sa petog servera: {e}")
+
+
 
 
 if __name__ == "__main__":

@@ -98,6 +98,8 @@ class ScenaristBase(BaseModel):
 class ScenaristCreate(ScenaristBase):
     pass
 
+
+
 # HTTP POST Evidencija novih filmskih scenarista
 @app.post("/scenaristi/", status_code=status.HTTP_201_CREATED)
 async def stvori_scenarista(scenarist: ScenaristCreate, db: Session = Depends(get_db)):
@@ -110,6 +112,8 @@ async def stvori_scenarista(scenarist: ScenaristCreate, db: Session = Depends(ge
     return {"msg": "Scenarist je evidentiran!"}  
 
 
+
+
 #HTTP PUT izmjena email-a i telefonskog kontakta za scenarista 
 
 @app.put("/novi-scenarist/{s_id}", status_code=status.HTTP_200_OK)
@@ -118,21 +122,22 @@ async def izmijeni_email_telefon_redatelja(s_id: str, novi_podaci: ScenaristCrea
 
     if db_scenarist is None:
         raise HTTPException(status_code=404, detail="Scenarist nije pronađen")
-
     # Ažuriranje emaila i telefona
     db_scenarist.s_email = novi_podaci.s_email
     db_scenarist.s_telefon = novi_podaci.s_telefon
-
     db.commit()
     db.refresh(db_scenarist)
-
     return {"msg": "Scenarist je ažuriran"} 
+
+
 
 # HTTP GET Dohvaćanje svih scenarista
 @app.get("/scenaristi/", response_model=List[ScenaristPydantic], status_code=status.HTTP_200_OK)
 async def dohvati_sve_scenariste(db: Session = Depends(get_db)):
     scenaristi = db.query(Scenarist).all()
     return scenaristi 
+
+
 
 # HTTP GET Dohvaćanje jednog scenarista
 @app.get("/scenarist/{s_id}", response_model=ScenaristPydantic)
@@ -142,73 +147,48 @@ async def dohvati_scenarista(s_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Scenarist nije pronađen")
     return scenarist
 
-#HTTP POST evidencija novog scenarista te slanje rješenja prvom serveru 
-@app.post("/scenarist-k-prvom/", status_code=status.HTTP_201_CREATED)
-async def stvori_scenarista(scenarist: ScenaristCreate):
-    prvi_server_url = "http://localhost:8000/primi-rjesenje-iz-treceg-servera/"
-    try:
-        with httpx.AsyncClient() as client:
-            response = await client.post(prvi_server_url, json=scenarist.dict())
-            response.raise_for_status()
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Greška pri slanju rješenja prvom serveru: {e}")
-
-    return {"msg": "Scenarist je evidentiran i rješenje poslano prvom serveru!"}  
 
 # HTTP GET dohvat glumaca sa prvog servera    
 
-@app.get("/dohvat-glumaca-sa-servera-glumci/", response_model=List[GlumacPydantic], status_code=status.HTTP_200_OK)
-async def dohvati_glumce_sa_prvog_servera():
-    SERVER1_BASE_URL = "http://127.0.0.1:8000"  
-    glumci_url = f"{SERVER1_BASE_URL}/glumci/"
-    
+@app.get("/scenaristi_ka_glumcima/", response_model=List[GlumacPydantic], status_code=status.HTTP_200_OK)
+async def dohvat_glumaca():
+    glumci_url = "http://127.0.0.1:8000/glumci/"  
     try:
-        # Izvršavanje HTTP GET zahtjeva prema drugom serveru
         with httpx.Client() as client:
             response = client.get(glumci_url)
-            response.raise_for_status()  # Podiže iznimku ako je status kod odgovora neuspješan
-
-        # Pretvorba odgovora u listu redatelja
+            response.raise_for_status() 
         glumci = response.json()
         return glumci
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Greška pri dohvaćanju glumca sa prvog servera: {e}")
 
 
+
 #HTTP GET dohvat redatelja sa drugog servera 
 
-@app.get("/dohvat-redatelja-sa-servera-redatelji", response_model=List[RedateljPydantic], status_code=status.HTTP_200_OK)
-async def dohvati_redatelje_sa_drugog_servera():
-    SERVER2_BASE_URL = "http://127.0.0.1:8001"  
-    redatelji_url = f"{SERVER2_BASE_URL}/redatelji/"
-    
+@app.get("/scenaristi_ka_redateljima", response_model=List[RedateljPydantic], status_code=status.HTTP_200_OK)
+async def dohvat_redatelja():
+    redatelji_url = "http://127.0.0.1:8001/redatelji/"  
     try:
-        # Izvršavanje HTTP GET zahtjeva prema drugom serveru
         with httpx.Client() as client:
             response = client.get(redatelji_url)
-            response.raise_for_status()  # Podiže iznimku ako je status kod odgovora neuspješan
-
-        # Pretvorba odgovora u listu redatelja
+            response.raise_for_status()  
         redatelji = response.json()
         return redatelji
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Greška pri dohvaćanju redatelja sa drugog servera: {e}")
 
 
+
 # HTTP GET Dohvat filmova sa petog servera 
 
-@app.get("/dohvat-filmova-sa-servera-filmovi/", response_model=List[FilmPydantic], status_code=status.HTTP_200_OK)
-async def dohvati_filmove_sa_petog_servera():
-    SERVER5_BASE_URL = "http://127.0.0.1:8003"  
-    filmovi_url = f"{SERVER5_BASE_URL}/filmovi/"
-    
+@app.get("/scenarij_za_film/", response_model=List[FilmPydantic], status_code=status.HTTP_200_OK)
+async def dohvat_filmova():
+    filmovi_url = "http://127.0.0.1:8003/filmovi/"  
     try:
-        # Izvršavanje HTTP GET zahtjeva prema trecem serveru
         with httpx.Client() as client:
             response = client.get(filmovi_url)
-            response.raise_for_status()  # Podiže iznimku ako je status kod odgovora neuspješan
-
-        # Pretvorba odgovora u listu scenarista
+            response.raise_for_status() 
         filmovi = response.json()
         return filmovi
     except Exception as e:

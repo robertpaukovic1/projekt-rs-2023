@@ -71,11 +71,16 @@ async def upis_ocjene(ocjena: OcjenaCreate, db: Session = Depends(get_db)):
     db.refresh(db_ocjena)
     return {"msg": "Ocjena filmu je evidentirana!"}
 
+
+
 # HTTP GET Dohvaćanje svih ocjenjenih filmova
 @app.get("/ocjene/", response_model=List[OcjenaPydantic], status_code=status.HTTP_200_OK)
 async def dohvati_sve_ocjene(db: Session = Depends(get_db)):
     ocjene = db.query(Ocjena).all()
     return ocjene
+
+
+
 
 # HTTP GET Dohvaćanje jedne filmske uloge
 @app.get("/ocjena/{m_id}", response_model=OcjenaPydantic)
@@ -86,20 +91,17 @@ async def dohvati_ocjenu(m_id: int, db: Session = Depends(get_db)):
     return ocjena  
 
 
+
+
 #HTTP GET dohvat filma sa sa petog servera  
 
-@app.get("/dohvat-filmova-sa-servera-filmovi/", response_model=List[FilmPydantic], status_code=status.HTTP_200_OK)
+@app.get("/ocjene_za_filmove/", response_model=List[FilmPydantic], status_code=status.HTTP_200_OK)
 async def dohvati_filmove_sa_petog_servera():
-    SERVER5_BASE_URL = "http://127.0.0.1:8003"  
-    filmovi_url = f"{SERVER5_BASE_URL}/filmovi/"
-    
+    filmovi_url = "http://127.0.0.1:8003/filmovi/"  
     try:
-        # Izvršavanje HTTP GET zahtjeva prema trecem serveru
         with httpx.Client() as client:
             response = client.get(filmovi_url)
-            response.raise_for_status()  # Podiže iznimku ako je status kod odgovora neuspješan
-
-        # Pretvorba odgovora u listu scenarista
+            response.raise_for_status()  
         filmovi = response.json()
         return filmovi
     except Exception as e:

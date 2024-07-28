@@ -107,7 +107,6 @@ async def izmjena_nagrede_glumcu(g_id: str,nova_nagrada: str,db: Session = db_de
 @app.delete("/glumac/{g_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def obrisi_glumca(g_id: str, db: Session = db_dependency):
     db_glumac = db.query(models.Glumac).filter(models.Glumac.g_id == g_id).first()
-
     if db_glumac is None:
         raise HTTPException(status_code=404, detail="Glumac nije pronadjen!")
     db.delete(db_glumac)
@@ -134,18 +133,13 @@ async def dohvat_redatelja():
 
 # HTTP GET Dohvat scenarista sa treceg servera  
 
-@app.get("/dohvat-scenarista-sa-servera-scenaristi/", response_model=List[ScenaristPydantic], status_code=status.HTTP_200_OK)
-async def dohvati_scenarista_sa_treceg_servera():
-    SERVER3_BASE_URL = "http://127.0.0.1:8002"  
-    scenaristi_url = f"{SERVER3_BASE_URL}/scenaristi/"
-    
+@app.get("/glumci_ka_scenaristima/", response_model=List[ScenaristPydantic], status_code=status.HTTP_200_OK)
+async def dohvat_scenarista():
+    scenaristi_url = "http://127.0.0.1:8002/scenaristi/"  
     try:
-        # Izvršavanje HTTP GET zahtjeva prema trecem serveru
         with httpx.Client() as client:
             response = client.get(scenaristi_url)
-            response.raise_for_status()  # Podiže iznimku ako je status kod odgovora neuspješan
-
-        # Pretvorba odgovora u listu scenarista
+            response.raise_for_status() 
         scenaristi = response.json()
         return scenaristi
     except Exception as e:
@@ -154,18 +148,13 @@ async def dohvati_scenarista_sa_treceg_servera():
 
 # HTTP Dohvat filmske uloge sa sestog servera  
     
-@app.get("/dohvat-filmskih-uloga-sa-servera-uloge/", response_model=List[UlogaPydantic], status_code=status.HTTP_200_OK)
-async def dohvati_filmske_uloge_sa_sestog_servera():
-    SERVER6_BASE_URL = "http://127.0.0.1:8005"  
-    uloge_url = f"{SERVER6_BASE_URL}/uloge/"
-    
+@app.get("/filmske_uloge/", response_model=List[UlogaPydantic], status_code=status.HTTP_200_OK)
+async def dohvat_filmskih_uloga():
+    uloge_url = "http://127.0.0.1:8005/uloge/"  
     try:
-        # Izvršavanje HTTP GET zahtjeva prema sestog serveru
         with httpx.Client() as client:
             response = client.get(uloge_url)
-            response.raise_for_status()  # Podiže iznimku ako je status kod odgovora neuspješan
-
-        # Pretvorba odgovora u listu uloga
+            response.raise_for_status()  
         uloge = response.json()
         return uloge
     except Exception as e:

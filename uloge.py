@@ -80,11 +80,15 @@ async def stvori_ulogu(uloga: UlogaCreate, db: Session = Depends(get_db)):
     db.refresh(db_uloga)
     return {"msg": "Uloga glumcu je dodana!"}
 
+
+
 # HTTP GET Dohvaćanje svih filsmkih glumačkih uloga 
 @app.get("/uloge/", response_model=List[UlogaPydantic], status_code=status.HTTP_200_OK)
 async def dohvati_sve_uloge(db: Session = Depends(get_db)):
     uloge = db.query(Uloga).all()
     return uloge
+
+
 
 # HTTP GET Dohvaćanje jedne filmske uloge
 @app.get("/uloga/{u_id}", response_model=UlogaPydantic)
@@ -93,6 +97,8 @@ async def dohvati_ulogu(u_id: int, db: Session = Depends(get_db)):
     if uloga is None:
         raise HTTPException(status_code=404, detail="Pripadajuca uloga glumcu nije pronadjena")
     return uloga    
+
+
 
 #HTTP PUT izmjena tipa uloge za glumca   
 
@@ -113,18 +119,13 @@ async def izmjena_tipa_uloge(u_id: int, novi_tip_uloge: str, db: Session = Depen
 
 #HTTP GET dohvat filma sa sa petog servera  
 
-@app.get("/dohvat-filmova-sa-servera-filmovi/", response_model=List[FilmPydantic], status_code=status.HTTP_200_OK)
-async def dohvati_filmove_sa_petog_servera():
-    SERVER5_BASE_URL = "http://127.0.0.1:8003"  
-    filmovi_url = f"{SERVER5_BASE_URL}/filmovi/"
-    
+@app.get("/uloga_za_film/", response_model=List[FilmPydantic], status_code=status.HTTP_200_OK)
+async def dohvat_filmova():
+    filmovi_url = "http://127.0.0.1:8003/filmovi/"  
     try:
-        # Izvršavanje HTTP GET zahtjeva prema trecem serveru
         with httpx.Client() as client:
             response = client.get(filmovi_url)
-            response.raise_for_status()  # Podiže iznimku ako je status kod odgovora neuspješan
-
-        # Pretvorba odgovora u listu scenarista
+            response.raise_for_status()  
         filmovi = response.json()
         return filmovi
     except Exception as e:
@@ -134,18 +135,13 @@ async def dohvati_filmove_sa_petog_servera():
 
 # HTTP GET Dohvat glumaca sa prvog servera 
 
-@app.get("/dohvat-glumaca-sa-servera-glumci/", response_model=List[GlumacPydantic], status_code=status.HTTP_200_OK)
-async def dohvati_glumce_sa_prvog_servera():
-    SERVER1_BASE_URL = "http://127.0.0.1:8000"  
-    glumci_url = f"{SERVER1_BASE_URL}/glumci/"
-    
+@app.get("/uloga_za_glumce/", response_model=List[GlumacPydantic], status_code=status.HTTP_200_OK)
+async def dohvat_glumaca():
+    glumci_url = "http://127.0.0.1:8000/glumci/"  
     try:
-        # Izvršavanje HTTP GET zahtjeva prema prvom serveru
         with httpx.Client() as client:
             response = client.get(glumci_url)
-            response.raise_for_status()  # Podiže iznimku ako je status kod odgovora neuspješan
-
-        # Pretvorba odgovora u listu glumaca
+            response.raise_for_status()  
         glumci = response.json()
         return glumci
     except Exception as e:
