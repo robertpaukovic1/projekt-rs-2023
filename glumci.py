@@ -61,7 +61,7 @@ def root():
 
 #HTTP POST Unos podataka o glumcima  
 
-@app.post("/glumci/", status_code=status.HTTP_201_CREATED)  
+@app.post("/api/glumci/", status_code=status.HTTP_201_CREATED)  
 async def stvori_glumca(glumac: GlumacCreate, db: Session = Depends(get_db)): 
     db_glumac = models.Glumac(**glumac.dict())
     db.add(db_glumac)
@@ -72,14 +72,14 @@ async def stvori_glumca(glumac: GlumacCreate, db: Session = Depends(get_db)):
 
 #HTTP GET dohvacanje svih glumaca    
 
-@app.get("/glumci/", response_model=List[GlumacBase], status_code=status.HTTP_200_OK)
+@app.get("/api/glumci/", response_model=List[GlumacBase], status_code=status.HTTP_200_OK)
 async def dohvati_sve_glumce(db: Session = db_dependency):
     glumci = db.query(models.Glumac).all()
     return glumci
 
 #HTTP GET Dohvacanje jednog glumca  
 
-@app.get("/glumac/{g_id}", status_code=status.HTTP_200_OK)
+@app.get("/api/glumac/{g_id}", status_code=status.HTTP_200_OK)
 async def dohvati_glumca(g_id: str, db: Session = db_dependency):  
     glumac = db.query(models.Glumac).filter(models.Glumac.g_id == g_id).first()  
     if glumac is None:
@@ -88,7 +88,7 @@ async def dohvati_glumca(g_id: str, db: Session = db_dependency):
 
 #HTTP PUT Izmjena osvojene nagrade za trecu glumicu   
 
-@app.put("/glumac/{g_id}", status_code=status.HTTP_200_OK)
+@app.put("/api/glumac/{g_id}", status_code=status.HTTP_200_OK)
 async def izmjena_nagrede_glumcu(g_id: str,nova_nagrada: str,db: Session = db_dependency):
     db_glumac = db.query(models.Glumac).filter(models.Glumac.g_id == g_id).first()
 
@@ -104,7 +104,7 @@ async def izmjena_nagrede_glumcu(g_id: str,nova_nagrada: str,db: Session = db_de
 
 #HTTP DELETE metoda brisanja glumca kojem nije dodijeljena niti jedna uloga 
 
-@app.delete("/glumac/{g_id}", status_code=status.HTTP_204_NO_CONTENT)
+@app.delete("/api/glumac/{g_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def obrisi_glumca(g_id: str, db: Session = db_dependency):
     db_glumac = db.query(models.Glumac).filter(models.Glumac.g_id == g_id).first()
     if db_glumac is None:
@@ -118,9 +118,9 @@ async def obrisi_glumca(g_id: str, db: Session = db_dependency):
 
 #  HTTP dohvat redatelja sa drugog servera  
 
-@app.get("/glumci_ka_redateljima/", response_model=List[RedateljPydantic], status_code=status.HTTP_200_OK)
+@app.get("/api/glumci_ka_redateljima/", response_model=List[RedateljPydantic], status_code=status.HTTP_200_OK)
 async def dohvat_redatelja():
-    redatelji_url = "http://127.0.0.1:8001/redatelji/"   
+    redatelji_url = "http://127.0.0.1:8001/api/redatelji/"   
     try:
         with httpx.Client() as client:
             response = client.get(redatelji_url)
@@ -133,12 +133,12 @@ async def dohvat_redatelja():
 
 # HTTP GET Dohvat scenarista sa treceg servera  
 
-@app.get("/glumci_ka_scenaristima/", response_model=List[ScenaristPydantic], status_code=status.HTTP_200_OK)
+@app.get("/api/glumci_ka_scenaristima/", response_model=List[ScenaristPydantic], status_code=status.HTTP_200_OK)
 async def dohvat_scenarista():
-    scenaristi_url = "http://127.0.0.1:8002/scenaristi/"  
+    scenaristi_url = "http://127.0.0.1:8002/api/scenaristi/"  
     try:
         with httpx.Client() as client:
-            response = client.get(scenaristi_url)
+            response =  client.get(scenaristi_url)
             response.raise_for_status() 
         scenaristi = response.json()
         return scenaristi
@@ -148,9 +148,9 @@ async def dohvat_scenarista():
 
 # HTTP Dohvat filmske uloge sa sestog servera  
     
-@app.get("/filmske_uloge/", response_model=List[UlogaPydantic], status_code=status.HTTP_200_OK)
+@app.get("/api/filmske_uloge/", response_model=List[UlogaPydantic], status_code=status.HTTP_200_OK)
 async def dohvat_filmskih_uloga():
-    uloge_url = "http://127.0.0.1:8005/uloge/"  
+    uloge_url = "http://127.0.0.1:8005/api/uloge/"  
     try:
         with httpx.Client() as client:
             response = client.get(uloge_url)

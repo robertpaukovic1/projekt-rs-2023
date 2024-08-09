@@ -47,7 +47,7 @@ class StudioCreate(StudioBase):
 
 
 # HTTP POST Evidencija novih filmskih studio-a
-@app.post("/novi-studio/", status_code=status.HTTP_201_CREATED)
+@app.post("/api/novi-studio/", status_code=status.HTTP_201_CREATED)
 async def stvori_studio(studio: StudioCreate, db: Session = Depends(get_db)):
     print(studio.dict())
     db_studio = Studio(**studio.dict())
@@ -60,7 +60,7 @@ async def stvori_studio(studio: StudioCreate, db: Session = Depends(get_db)):
 
 
 # HTTP GET Dohvaćanje svih filsmkih studia
-@app.get("/studio-s/", response_model=List[StudioPydantic], status_code=status.HTTP_200_OK)
+@app.get("/api/studio-s/", response_model=List[StudioPydantic], status_code=status.HTTP_200_OK)
 async def dohvati_sva_studio_a(db: Session = Depends(get_db)):
     studios = db.query(Studio).all()
     return studios
@@ -68,7 +68,7 @@ async def dohvati_sva_studio_a(db: Session = Depends(get_db)):
 
 
 # HTTP GET Dohvaćanje jednog filmskog studia
-@app.get("/studio/{st_id}", response_model=StudioPydantic)
+@app.get("/api/studio/{st_id}", response_model=StudioPydantic)
 async def dohvati_studio(st_id: int, db: Session = Depends(get_db)):
     studio= db.query(Studio).filter(Studio.st_id == st_id).first()
     if studio is None:
@@ -80,9 +80,9 @@ async def dohvati_studio(st_id: int, db: Session = Depends(get_db)):
 
 #HTTP GET dohvat filma sa sa petog servera  
 
-@app.get("/studio_za_film/", response_model=List[FilmPydantic], status_code=status.HTTP_200_OK)
+@app.get("/api/studio_za_film/", response_model=List[FilmPydantic], status_code=status.HTTP_200_OK)
 async def dohvat_filmova():
-    filmovi_url = "http://127.0.0.1:8003/filmovi/"  
+    filmovi_url = "http://127.0.0.1:8003/api/filmovi/"  
     try:
         with httpx.Client() as client:
             response = client.get(filmovi_url)

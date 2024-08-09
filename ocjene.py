@@ -61,7 +61,7 @@ class FilmPydantic(BaseModel):
 
 
 # HTTP POST Evidencija prve ocjene na pogledani film
-@app.post("/prva_ocjena/", status_code=status.HTTP_201_CREATED)
+@app.post("/api/prva_ocjena/", status_code=status.HTTP_201_CREATED)
 async def upis_ocjene(ocjena: OcjenaCreate, db: Session = Depends(get_db)):
     print(ocjena.dict())
     db_ocjena = Ocjena(**ocjena.dict())
@@ -74,7 +74,7 @@ async def upis_ocjene(ocjena: OcjenaCreate, db: Session = Depends(get_db)):
 
 
 # HTTP GET Dohvaćanje svih ocjenjenih filmova
-@app.get("/ocjene/", response_model=List[OcjenaPydantic], status_code=status.HTTP_200_OK)
+@app.get("/api/ocjene/", response_model=List[OcjenaPydantic], status_code=status.HTTP_200_OK)
 async def dohvati_sve_ocjene(db: Session = Depends(get_db)):
     ocjene = db.query(Ocjena).all()
     return ocjene
@@ -83,7 +83,7 @@ async def dohvati_sve_ocjene(db: Session = Depends(get_db)):
 
 
 # HTTP GET Dohvaćanje jedne filmske uloge
-@app.get("/ocjena/{m_id}", response_model=OcjenaPydantic)
+@app.get("/api/ocjena/{m_id}", response_model=OcjenaPydantic)
 async def dohvati_ocjenu(m_id: int, db: Session = Depends(get_db)):
     ocjena= db.query(Ocjena).filter(Ocjena.m_id == m_id).first()
     if ocjena is None:
@@ -95,9 +95,9 @@ async def dohvati_ocjenu(m_id: int, db: Session = Depends(get_db)):
 
 #HTTP GET dohvat filma sa sa petog servera  
 
-@app.get("/ocjene_za_filmove/", response_model=List[FilmPydantic], status_code=status.HTTP_200_OK)
+@app.get("/api/ocjene_za_filmove/", response_model=List[FilmPydantic], status_code=status.HTTP_200_OK)
 async def dohvati_filmove_sa_petog_servera():
-    filmovi_url = "http://127.0.0.1:8003/filmovi/"  
+    filmovi_url = "http://127.0.0.1:8003/api/filmovi/"  
     try:
         with httpx.Client() as client:
             response = client.get(filmovi_url)

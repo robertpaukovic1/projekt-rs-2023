@@ -101,7 +101,7 @@ class ScenaristCreate(ScenaristBase):
 
 
 # HTTP POST Evidencija novih filmskih scenarista
-@app.post("/scenaristi/", status_code=status.HTTP_201_CREATED)
+@app.post("/api/scenaristi/", status_code=status.HTTP_201_CREATED)
 async def stvori_scenarista(scenarist: ScenaristCreate, db: Session = Depends(get_db)):
     print(scenarist.dict())
     db_scenarist = Scenarist(**scenarist.dict())
@@ -116,7 +116,7 @@ async def stvori_scenarista(scenarist: ScenaristCreate, db: Session = Depends(ge
 
 #HTTP PUT izmjena email-a i telefonskog kontakta za scenarista 
 
-@app.put("/novi-scenarist/{s_id}", status_code=status.HTTP_200_OK)
+@app.put("/api/novi-scenarist/{s_id}", status_code=status.HTTP_200_OK)
 async def izmijeni_email_telefon_redatelja(s_id: str, novi_podaci: ScenaristCreate, db: Session = Depends(get_db)):
     db_scenarist = db.query(Scenarist).filter(Scenarist.s_id == s_id).first()
 
@@ -132,7 +132,7 @@ async def izmijeni_email_telefon_redatelja(s_id: str, novi_podaci: ScenaristCrea
 
 
 # HTTP GET Dohvaćanje svih scenarista
-@app.get("/scenaristi/", response_model=List[ScenaristPydantic], status_code=status.HTTP_200_OK)
+@app.get("/api/scenaristi/", response_model=List[ScenaristPydantic], status_code=status.HTTP_200_OK)
 async def dohvati_sve_scenariste(db: Session = Depends(get_db)):
     scenaristi = db.query(Scenarist).all()
     return scenaristi 
@@ -140,7 +140,7 @@ async def dohvati_sve_scenariste(db: Session = Depends(get_db)):
 
 
 # HTTP GET Dohvaćanje jednog scenarista
-@app.get("/scenarist/{s_id}", response_model=ScenaristPydantic)
+@app.get("/api/scenarist/{s_id}", response_model=ScenaristPydantic)
 async def dohvati_scenarista(s_id: str, db: Session = Depends(get_db)):
     scenarist = db.query(Scenarist).filter(Scenarist.s_id == s_id).first()
     if scenarist is None:
@@ -150,12 +150,12 @@ async def dohvati_scenarista(s_id: str, db: Session = Depends(get_db)):
 
 # HTTP GET dohvat glumaca sa prvog servera    
 
-@app.get("/scenaristi_ka_glumcima/", response_model=List[GlumacPydantic], status_code=status.HTTP_200_OK)
+@app.get("/api/scenaristi_ka_glumcima/", response_model=List[GlumacPydantic], status_code=status.HTTP_200_OK)
 async def dohvat_glumaca():
-    glumci_url = "http://127.0.0.1:8000/glumci/"  
+    glumci_url = "http://127.0.0.1:8000/api/glumci/"  
     try:
         with httpx.Client() as client:
-            response = client.get(glumci_url)
+            response =  client.get(glumci_url)
             response.raise_for_status() 
         glumci = response.json()
         return glumci
@@ -166,9 +166,9 @@ async def dohvat_glumaca():
 
 #HTTP GET dohvat redatelja sa drugog servera 
 
-@app.get("/scenaristi_ka_redateljima", response_model=List[RedateljPydantic], status_code=status.HTTP_200_OK)
+@app.get("/api/scenaristi_ka_redateljima", response_model=List[RedateljPydantic], status_code=status.HTTP_200_OK)
 async def dohvat_redatelja():
-    redatelji_url = "http://127.0.0.1:8001/redatelji/"  
+    redatelji_url = "http://127.0.0.1:8001/api/redatelji/"  
     try:
         with httpx.Client() as client:
             response = client.get(redatelji_url)
@@ -182,12 +182,12 @@ async def dohvat_redatelja():
 
 # HTTP GET Dohvat filmova sa petog servera 
 
-@app.get("/scenarij_za_film/", response_model=List[FilmPydantic], status_code=status.HTTP_200_OK)
+@app.get("/api/scenarij_za_film/", response_model=List[FilmPydantic], status_code=status.HTTP_200_OK)
 async def dohvat_filmova():
-    filmovi_url = "http://127.0.0.1:8003/filmovi/"  
+    filmovi_url = "http://127.0.0.1:8003/api/filmovi/"  
     try:
         with httpx.Client() as client:
-            response = client.get(filmovi_url)
+            response =  client.get(filmovi_url)
             response.raise_for_status() 
         filmovi = response.json()
         return filmovi
